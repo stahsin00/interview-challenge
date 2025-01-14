@@ -1,10 +1,36 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+
+  useEffect (() => {
+    const test = async () => {
+      console.log(`${import.meta.env.VITE_BACKEND_URL}/`);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/`,
+          {
+            method: 'GET'
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Connection successful:', data);
+      } catch (e) {
+        console.error(e.message);
+      }
+    }
+
+    test();
+
+  }, []);
 
   return (
     <>

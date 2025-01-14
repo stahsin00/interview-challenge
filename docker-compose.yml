@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: 
+      context: ./interview-challenge-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./interview-challenge-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./interview-challenge-backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./interview-challenge-backend:/app
+      - /app/node_modules
