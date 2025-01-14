@@ -8,10 +8,9 @@ function App() {
 
   useEffect (() => {
     const test = async () => {
-      console.log(`${import.meta.env.VITE_BACKEND_URL}/`);
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/genres/`,
           {
             method: 'GET'
           }

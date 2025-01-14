@@ -4,10 +4,14 @@ import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
 
+import { connectToMySQL } from "./services/mysql.js";
+
 import movieRouter from "./api/v1/movies.js";
 import genreRouter from "./api/v1/genres.js";
 
 const app = express();
+
+connectToMySQL();
 
 // Middleware
 app.use(logger("dev"));

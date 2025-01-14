@@ -23,12 +23,14 @@ services:
       - ./interview-challenge-backend:/app
       - /app/node_modules
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
   mysql:
     image: mysql:8.0
+    command: --port=3306
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
@@ -37,6 +39,11 @@ services:
       - MYSQL_DATABASE=challengedb
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mysql_data:

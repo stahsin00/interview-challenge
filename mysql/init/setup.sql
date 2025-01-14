@@ -14,9 +14,20 @@ CREATE TABLE movies (
 );
 
 CREATE TABLE movie_genres (
-    movie_id INT,
-    genre_id INT,
+    movie_id VARCHAR(36),
+    genre_id VARCHAR(36),
     PRIMARY KEY (movie_id, genre_id),
     FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
 );
+
+INSERT INTO genres (name) VALUES
+    ('Action'),
+    ('Comedy'),
+    ('Drama'),
+    ('Fantasy'),
+    ('Horror'),
+    ('Mystery'),
+    ('Romance'),
+    ('Science Fiction'),
+    ('Thriller');
