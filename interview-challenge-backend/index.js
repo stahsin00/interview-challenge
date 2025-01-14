@@ -1,10 +1,16 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+import "dotenv/config.js";
+
+import express from 'express';
+import logger from 'morgan';
+import cors from 'cors';
+
+import movieRouter from "./api/v1/movies.js";
+import genreRouter from "./api/v1/genres.js";
 
 const app = express();
 
 // Middleware
+app.use(logger("dev"));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -13,6 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
 });
+
+// Other routes
+app.use("/api/v1/movies", movieRouter);
+app.use("/api/v1/genres", genreRouter);
 
 // Start server
 const PORT = process.env.PORT || 3000;
