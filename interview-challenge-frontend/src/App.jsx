@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import Home from './pages/Home'
 import Header from './components/Header';
+import MovieModal from './components/MovieModal';
+import MovieForm from './components/MovieForm';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   useEffect (() => {
     const test = async () => {
       try {
@@ -35,6 +35,8 @@ function App() {
     <>
       <Header/>
       <Home/>
+      {/* <MovieModal/> */}
+      {/* <MovieForm/> */}
     </>
   )
 }

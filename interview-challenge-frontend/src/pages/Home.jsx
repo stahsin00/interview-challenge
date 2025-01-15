@@ -1,8 +1,16 @@
 import Banner from "../components/Banner";
 import MovieCard from "../components/MovieCard";
 import { FaArrowUp } from "react-icons/fa";
+import { FaRegStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 
 function Home() {
+    const genres = [
+        'Action', 'Adventure', 'Animation', 'Comedy', 'Crime',
+        'Documentary', 'Drama', 'Fantasy', 'Horror', 'Mystery',
+        'Romance', 'Sci-Fi', 'Thriller'
+    ];
+
   return (
     <div className='bg-[#212121] flex flex-col p-0 m-0'>
         <div className="w-full h-screen flex justify-center items-center">
