@@ -1,16 +1,69 @@
+import { useState } from 'react';
 import { FaRegStar } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 
 function MovieCard({ movie, setSelectedMovie }) {
-    const { title, releaseYear, rating, watched, genres } = movie;
+    const { title, releaseYear, genres } = movie;
+    const [rating, setRating] = useState(movie.rating);
+    const [watched, setWatched] = useState(movie.watched);
+
+    const handleWatched = async (e) => {
+        e.stopPropagation();
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/movies/${movie.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...movie,
+                    watched: !watched
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update rating');
+            }
+
+            setWatched(!watched);
+        } catch (err) {
+            console.error('Error updating rating:', err);
+        }
+    }
+
+    const handleRating = async (e, i) => {
+        e.stopPropagation();
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/movies/${movie.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...movie,
+                    rating: i
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update rating');
+            }
+
+            setRating(i);
+        } catch (err) {
+            console.error('Error updating rating:', err);
+        }
+    }
 
     const renderStars = () => {
         const stars = [];
         for (let i = 1; i <= 5; i++) {
             stars.push(
                 i <= (rating || 0) ? 
-                    <FaStar key={i} className="cursor-pointer"/> : 
-                    <FaRegStar key={i} className="cursor-pointer"/>
+                    <FaStar key={i} className="cursor-pointer" onClick={(e) => {handleRating(e, i)}}/> : 
+                    <FaRegStar key={i} className="cursor-pointer" onClick={(e) => {handleRating(e, i)}}/>
             );
         }
         return stars;
@@ -30,7 +83,7 @@ function MovieCard({ movie, setSelectedMovie }) {
                     <div className="flex text-[#f8ad2d]">
                         {renderStars()}
                     </div>
-                    <button className={`border ${watched ? "border-gray-600 text-gray-600" : "border-[#f8ad2d] text-[#f8ad2d]"} rounded-md text-sm p-2 w-64`}>
+                    <button className={`border ${watched ? "border-gray-600 text-gray-600" : "border-[#f8ad2d] text-[#f8ad2d]"} rounded-md text-sm p-2 w-64`} onClick={(e) => {handleWatched(e)}}>
                         {watched ? 'Watched' : 'Mark as Watched'}
                     </button>
                 </div>

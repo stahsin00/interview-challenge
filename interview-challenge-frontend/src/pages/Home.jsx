@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react'
 import Banner from "../components/Banner";
 import MovieCard from "../components/MovieCard";
 import { FaArrowUp } from "react-icons/fa";
-import { IoMdArrowDropleftCircle } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
-function Home({ setSelectedMovie, setIsFormOpen }) {
+function Home({ setSelectedMovie, setIsFormOpen, selectedMovie }) {
     const [genres, setGenres] = useState([]);
     const [movies, setMovies] = useState([]);
     const [page, setPage] = useState(1);
@@ -63,7 +62,7 @@ function Home({ setSelectedMovie, setIsFormOpen }) {
     
         getMovies();
     
-    }, [page]);
+    }, [page, selectedMovie]);
 
   return (
     <div className='bg-[#212121] flex flex-col p-0 m-0'>

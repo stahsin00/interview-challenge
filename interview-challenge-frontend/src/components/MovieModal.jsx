@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FaRegStar } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -9,15 +10,87 @@ function MovieModal({ selectedMovie, setSelectedMovie }) {
         return (<></>);
     }
 
-    const { title, releaseYear, rating, watched, genres } = selectedMovie;
+    const { title, releaseYear, genres } = selectedMovie;
+    const [rating, setRating] = useState(selectedMovie.rating);
+    const [watched, setWatched] = useState(selectedMovie.watched);
+
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/movies/${selectedMovie.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update rating');
+            }
+
+            setSelectedMovie(null);
+        } catch (err) {
+            console.error('Error updating rating:', err);
+        }
+    }
+
+    const handleWatched = async (e) => {
+        e.stopPropagation();
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/movies/${selectedMovie.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...selectedMovie,
+                    watched: !watched
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update rating');
+            }
+
+            setWatched(!watched);
+        } catch (err) {
+            console.error('Error updating rating:', err);
+        }
+    }
+
+    const handleRating = async (e, i) => {
+        e.stopPropagation();
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/movies/${selectedMovie.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...selectedMovie,
+                    rating: i
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update rating');
+            }
+
+            setRating(i);
+        } catch (err) {
+            console.error('Error updating rating:', err);
+        }
+    }
 
     const renderStars = () => {
         const stars = [];
         for (let i = 1; i <= 5; i++) {
             stars.push(
                 i <= (rating || 0) ? 
-                    <FaStar key={i} className="cursor-pointer"/> : 
-                    <FaRegStar key={i} className="cursor-pointer"/>
+                    <FaStar key={i} className="cursor-pointer" onClick={(e) => {handleRating(e, i)}}/> : 
+                    <FaRegStar key={i} className="cursor-pointer" onClick={(e) => {handleRating(e, i)}}/>
             );
         }
         return stars;
@@ -37,7 +110,7 @@ function MovieModal({ selectedMovie, setSelectedMovie }) {
                         <div className="flex text-[#f8ad2d]">
                             {renderStars()}
                         </div>
-                        <button className={`border ${watched ? "border-gray-600 text-gray-600" : "border-[#f8ad2d] text-[#f8ad2d]"} rounded-md text-sm p-2 w-64`}>
+                        <button className={`border ${watched ? "border-gray-600 text-gray-600" : "border-[#f8ad2d] text-[#f8ad2d]"} rounded-md text-sm p-2 w-64`}  onClick={(e) => {handleWatched(e)}}>
                             {watched ? 'Watched' : 'Mark as Watched'}
                         </button>
                     </div>

@@ -193,6 +193,8 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
     const { title, releaseYear, genres, watched, rating } = req.body;
     const movieId = req.params.id;
+
+    console.log(movieId);
     
     if (!title || !releaseYear) {
         return res.status(400).json({ 
@@ -212,22 +214,20 @@ router.put("/:id", async (req, res) => {
         });
     }
     
-    const connection = await db.getConnection();
-    
     try {
-        await connection.beginTransaction();
+        await db.beginTransaction();
         
-        const [existingMovie] = await connection.query(
+        const [existingMovie] = await db.query(
             "SELECT id FROM movies WHERE id = ?",
             [movieId]
         );
         
         if (!existingMovie.length) {
-            await connection.rollback();
+            await db.rollback();
             return res.status(404).json({ message: "Movie not found" });
         }
         
-        await connection.query(
+        await db.query(
             `UPDATE movies 
              SET title = ?, releaseYear = ?, watched = ?, rating = ? 
              WHERE id = ?`,
@@ -235,23 +235,23 @@ router.put("/:id", async (req, res) => {
         );
         
         if (genres != null) {
-            await connection.query(
+            await db.query(
                 "DELETE FROM movie_genres WHERE movie_id = ?",
                 [movieId]
             );
             
             if (genres.length) {
-                const genreValues = genres.map(genreId => [movieId, genreId]);  // TODO: validate genre id?
-                await connection.query(
+                const genreValues = genres.map(genre => [movieId, genre.id]);  // TODO: validate genre id?
+                await db.query(
                     "INSERT INTO movie_genres (movie_id, genre_id) VALUES ?",
                     [genreValues]
                 );
             }
         }
         
-        await connection.commit();
+        await db.commit();
         
-        const [updatedMovie] = await connection.query(
+        const [updatedMovie] = await db.query(
             `SELECT m.*, 
                     GROUP_CONCAT(g.id) as genreIds,
                     GROUP_CONCAT(g.name) as genreNames 
@@ -275,11 +275,9 @@ router.put("/:id", async (req, res) => {
         
         res.status(200).json(movie);
     } catch (err) {
-        await connection.rollback();
+        await db.rollback();
         console.error(err);
         res.status(500).send("Internal Server Error");
-    } finally {
-        connection.release();
     }
 });
 

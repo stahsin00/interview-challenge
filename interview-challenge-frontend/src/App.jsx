@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <Header setIsFormOpen={setIsFormOpen}/>
-      <Home setSelectedMovie={setSelectedMovie} setIsFormOpen={setIsFormOpen}/>
+      <Home setSelectedMovie={setSelectedMovie} setIsFormOpen={setIsFormOpen} selectedMovie={selectedMovie}/>
       <MovieModal setSelectedMovie={setSelectedMovie} selectedMovie={selectedMovie}/>
       <MovieForm setIsFormOpen={setIsFormOpen} isFormOpen={isFormOpen}/>
     </>
