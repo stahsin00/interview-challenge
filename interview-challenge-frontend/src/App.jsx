@@ -7,13 +7,14 @@ import MovieForm from './components/MovieForm';
 
 function App() {
   const [ selectedMovie, setSelectedMovie ] = useState();
+  const [ isFormOpen, setIsFormOpen ] = useState(false);
 
   return (
     <>
-      <Header/>
-      <Home setSelectedMovie={setSelectedMovie}/>
+      <Header setIsFormOpen={setIsFormOpen}/>
+      <Home setSelectedMovie={setSelectedMovie} setIsFormOpen={setIsFormOpen}/>
       <MovieModal setSelectedMovie={setSelectedMovie} selectedMovie={selectedMovie}/>
-      {/* <MovieForm/> */}
+      <MovieForm setIsFormOpen={setIsFormOpen} isFormOpen={isFormOpen}/>
     </>
   )
 }

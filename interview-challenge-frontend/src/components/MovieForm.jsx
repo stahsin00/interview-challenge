@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IoIosCloseCircle } from "react-icons/io";
 
-function MovieForm() {
+function MovieForm({ isFormOpen, setIsFormOpen }) {
     const [formData, setFormData] = useState({
         title: '',
         releaseYear: new Date().getFullYear(),
@@ -21,6 +21,10 @@ function MovieForm() {
             : [...prev.genres, genre]
         }));
     };
+
+    if (!isFormOpen) {
+        return (<></>);
+    }
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur z-50 flex justify-center items-center">
@@ -52,7 +56,7 @@ function MovieForm() {
                         </div>
                     </div>
                     <div className="flex justify-center gap-4 mt-7">
-                        <button type="button" className="px-4 py-2 rounded-md text-gray-300 hover:bg-gray-800 transition-colors">
+                        <button type="button" className="px-4 py-2 rounded-md text-gray-300 hover:bg-gray-800 transition-colors" onClick={() => {setIsFormOpen(false)}}>
                             Cancel
                         </button>
                         <button type="submit" className="px-4 py-2 rounded-md bg-[#f8ad2d] text-black font-medium hover:bg-[#e59d1d] transition-colors">
@@ -60,7 +64,7 @@ function MovieForm() {
                         </button>
                     </div>
                 </form>
-                <button className="absolute top-2 right-2 text-[#f8ad2d] text-xl">
+                <button className="absolute top-2 right-2 text-[#f8ad2d] text-xl" onClick={() => {setIsFormOpen(false)}}>
                     <IoIosCloseCircle />
                 </button>
             </div>

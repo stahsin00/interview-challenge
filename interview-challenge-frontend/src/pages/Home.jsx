@@ -6,7 +6,7 @@ import { IoMdArrowDropleftCircle } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
-function Home({ setSelectedMovie }) {
+function Home({ setSelectedMovie, setIsFormOpen }) {
     const [genres, setGenres] = useState([]);
     const [movies, setMovies] = useState([]);
     const [page, setPage] = useState(1);
@@ -68,7 +68,7 @@ function Home({ setSelectedMovie }) {
   return (
     <div className='bg-[#212121] flex flex-col p-0 m-0'>
         <div className="w-full h-screen flex justify-center items-center">
-            <Banner/>
+            <Banner setIsFormOpen={setIsFormOpen}/>
         </div>
         <div className="mx-auto px-4 mb-5">
             <div className="flex flex-wrap justify-center gap-4">
