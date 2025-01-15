@@ -1,40 +1,39 @@
-import express from 'express'
-import { db } from '../../services/mysql.js'
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { db } from '../../services/mysql.js';
 
-const router = express.Router()
+const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 10
-    const offset = (page - 1) * limit
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
 
-    const whereConditions = []
-    const queryParams = []
+    const whereConditions = [];
+    const queryParams = [];
 
     if (req.query.title) {
-      whereConditions.push('m.title LIKE ?')
-      queryParams.push(`%${req.query.title}%`)
+      whereConditions.push('m.title LIKE ?');
+      queryParams.push(`%${req.query.title}%`);
     }
 
     if (req.query.year) {
-      whereConditions.push('m.releaseYear = ?')
-      queryParams.push(parseInt(req.query.year))
+      whereConditions.push('m.releaseYear = ?');
+      queryParams.push(parseInt(req.query.year));
     }
 
     if (req.query.watched != null) {
-      whereConditions.push('m.watched = ?')
-      queryParams.push(req.query.watched === 'true')
+      whereConditions.push('m.watched = ?');
+      queryParams.push(req.query.watched === 'true');
     }
 
     if (req.query.genre) {
-      whereConditions.push('g.id = ?')
-      queryParams.push(req.query.genre) // TODO
+      whereConditions.push('g.id = ?');
+      queryParams.push(req.query.genre); // TODO
     }
 
-    const whereClause = whereConditions.length
-      ? `WHERE ${whereConditions.join(' AND ')}`
-      : ''
+    const whereClause = whereConditions.length ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
     const [countResult] = await db.query(
       `SELECT COUNT(DISTINCT m.id) as total 
@@ -43,10 +42,10 @@ router.get('/', async (req, res) => {
                 LEFT JOIN genres g ON mg.genre_id = g.id 
                 ${whereClause}`,
       queryParams
-    )
+    );
 
-    const totalMovies = countResult[0].total
-    const totalPages = Math.ceil(totalMovies / limit)
+    const totalMovies = countResult[0].total;
+    const totalPages = Math.ceil(totalMovies / limit);
 
     const [moviesResult] = await db.query(
       `SELECT m.*, 
@@ -60,7 +59,7 @@ router.get('/', async (req, res) => {
              ORDER BY m.createdAt DESC 
              LIMIT ? OFFSET ?`,
       [...queryParams, limit, offset]
-    )
+    );
 
     const movies = moviesResult.map((movie) => ({
       ...movie,
@@ -70,7 +69,7 @@ router.get('/', async (req, res) => {
             name,
           }))
         : [],
-    }))
+    }));
 
     res.status(200).json({
       movies,
@@ -79,12 +78,12 @@ router.get('/', async (req, res) => {
         total: totalPages,
         totalItems: totalMovies,
       },
-    })
+    });
   } catch (err) {
-    console.error(err)
-    res.status(500).send('Internal Server Error')
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
-})
+});
 
 router.get('/:id', async (req, res) => {
   try {
@@ -98,10 +97,10 @@ router.get('/:id', async (req, res) => {
              WHERE m.id = ?
              GROUP BY m.id`,
       [req.params.id]
-    )
+    );
 
     if (!movieResult.length) {
-      return res.status(404).json({ message: 'Movie not found.' })
+      return res.status(404).json({ message: 'Movie not found.' });
     }
 
     const movie = {
@@ -112,53 +111,48 @@ router.get('/:id', async (req, res) => {
             name,
           }))
         : [],
-    }
+    };
 
-    res.status(200).json(movie)
+    res.status(200).json(movie);
   } catch (err) {
-    console.error(err)
-    res.status(500).send('Internal Server Error')
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
-})
+});
 
 router.post('/', async (req, res) => {
-  const { title, releaseYear, genres } = req.body
+  const { title, releaseYear, genres } = req.body;
 
   if (!title || !releaseYear) {
     return res.status(400).json({
       message: 'Title and release year are required',
-    })
+    });
   }
 
   if (releaseYear < 1888 || releaseYear > new Date().getFullYear()) {
     return res.status(400).json({
       message: 'Invalid release year',
-    })
+    });
   }
 
-  const connection = await db.getConnection()
-
   try {
-    await connection.beginTransaction()
+    const movieId = uuidv4();
 
-    const [movieResult] = await connection.query(
-      'INSERT INTO movies (title, releaseYear, watched, rating) VALUES (?, ?, ?, ?)',
-      [title, releaseYear, false, null]
-    )
+    await db.beginTransaction();
 
-    const movieId = movieResult.insertId
+    const [movieResult] = await db.query(
+      'INSERT INTO movies (id, title, releaseYear, watched, rating) VALUES (?, ?, ?, ?, ?)',
+      [movieId, title, releaseYear, false, null]
+    );
 
     if (genres && genres.length) {
-      const genreValues = genres.map((genreId) => [movieId, genreId]) // TODO: invalid genre id?
-      await connection.query(
-        'INSERT INTO movie_genres (movie_id, genre_id) VALUES ?',
-        [genreValues]
-      )
+      const genreValues = genres.map((genre) => [movieId, genre.id]); // TODO: invalid genre id?
+      await db.query('INSERT INTO movie_genres (movie_id, genre_id) VALUES ?', [genreValues]);
     }
 
-    await connection.commit()
+    await db.commit();
 
-    const [newMovie] = await connection.query(
+    const [newMovie] = await db.query(
       `SELECT m.*, 
                     GROUP_CONCAT(g.id) as genreIds,
                     GROUP_CONCAT(g.name) as genreNames 
@@ -168,7 +162,7 @@ router.post('/', async (req, res) => {
              WHERE m.id = ?
              GROUP BY m.id`,
       [movieId]
-    )
+    );
 
     const movie = {
       ...newMovie[0],
@@ -178,53 +172,48 @@ router.post('/', async (req, res) => {
             name,
           }))
         : [],
-    }
+    };
 
-    res.status(201).json(movie)
+    res.status(201).json(movie);
   } catch (err) {
-    await connection.rollback()
-    console.error(err)
-    res.status(500).send('Internal Server Error')
-  } finally {
-    connection.release()
+    await db.rollback();
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
-})
+});
 
 router.put('/:id', async (req, res) => {
-  const { title, releaseYear, genres, watched, rating } = req.body
-  const movieId = req.params.id
+  const { title, releaseYear, genres, watched, rating } = req.body;
+  const movieId = req.params.id;
 
-  console.log(movieId)
+  console.log(movieId);
 
   if (!title || !releaseYear) {
     return res.status(400).json({
       message: 'Title and release year are required',
-    })
+    });
   }
 
   if (releaseYear < 1888 || releaseYear > new Date().getFullYear()) {
     return res.status(400).json({
       message: 'Invalid release year',
-    })
+    });
   }
 
   if (rating != null && (rating < 1 || rating > 5)) {
     return res.status(400).json({
       message: 'Rating must be between 1 and 5',
-    })
+    });
   }
 
   try {
-    await db.beginTransaction()
+    await db.beginTransaction();
 
-    const [existingMovie] = await db.query(
-      'SELECT id FROM movies WHERE id = ?',
-      [movieId]
-    )
+    const [existingMovie] = await db.query('SELECT id FROM movies WHERE id = ?', [movieId]);
 
     if (!existingMovie.length) {
-      await db.rollback()
-      return res.status(404).json({ message: 'Movie not found' })
+      await db.rollback();
+      return res.status(404).json({ message: 'Movie not found' });
     }
 
     await db.query(
@@ -232,21 +221,18 @@ router.put('/:id', async (req, res) => {
              SET title = ?, releaseYear = ?, watched = ?, rating = ? 
              WHERE id = ?`,
       [title, releaseYear, watched || false, rating || null, movieId]
-    )
+    );
 
     if (genres != null) {
-      await db.query('DELETE FROM movie_genres WHERE movie_id = ?', [movieId])
+      await db.query('DELETE FROM movie_genres WHERE movie_id = ?', [movieId]);
 
       if (genres.length) {
-        const genreValues = genres.map((genre) => [movieId, genre.id]) // TODO: validate genre id?
-        await db.query(
-          'INSERT INTO movie_genres (movie_id, genre_id) VALUES ?',
-          [genreValues]
-        )
+        const genreValues = genres.map((genre) => [movieId, genre.id]); // TODO: validate genre id?
+        await db.query('INSERT INTO movie_genres (movie_id, genre_id) VALUES ?', [genreValues]);
       }
     }
 
-    await db.commit()
+    await db.commit();
 
     const [updatedMovie] = await db.query(
       `SELECT m.*, 
@@ -258,7 +244,7 @@ router.put('/:id', async (req, res) => {
              WHERE m.id = ?
              GROUP BY m.id`,
       [movieId]
-    )
+    );
 
     const movie = {
       ...updatedMovie[0],
@@ -268,31 +254,29 @@ router.put('/:id', async (req, res) => {
             name,
           }))
         : [],
-    }
+    };
 
-    res.status(200).json(movie)
+    res.status(200).json(movie);
   } catch (err) {
-    await db.rollback()
-    console.error(err)
-    res.status(500).send('Internal Server Error')
+    await db.rollback();
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
-})
+});
 
 router.delete('/:id', async (req, res) => {
   try {
-    const [result] = await db.query('DELETE FROM movies WHERE id = ?', [
-      req.params.id,
-    ])
+    const [result] = await db.query('DELETE FROM movies WHERE id = ?', [req.params.id]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Movie not found.' })
+      return res.status(404).json({ message: 'Movie not found.' });
     }
 
-    res.status(204).send()
+    res.status(204).send();
   } catch (err) {
-    console.error(err)
-    res.status(500).send('Internal Server Error')
+    console.error(err);
+    res.status(500).send('Internal Server Error');
   }
-})
+});
 
-export default router
+export default router;
