@@ -1,4 +1,5 @@
 import express from "express";
+import { db } from "../../services/mysql.js";
 
 const router = express.Router();
 
@@ -34,6 +35,18 @@ router.get("/", async (req, res) => {
         const whereClause = whereConditions.length 
             ? `WHERE ${whereConditions.join(" AND ")}` 
             : "";
+
+        const [countResult] = await db.query(
+            `SELECT COUNT(DISTINCT m.id) as total 
+                FROM movies m 
+                LEFT JOIN movie_genres mg ON m.id = mg.movie_id 
+                LEFT JOIN genres g ON mg.genre_id = g.id 
+                ${whereClause}`,
+            queryParams
+        );
+        
+        const totalMovies = countResult[0].total;
+        const totalPages = Math.ceil(totalMovies / limit);
         
         const [moviesResult] = await db.query(
             `SELECT m.*, 
@@ -62,7 +75,9 @@ router.get("/", async (req, res) => {
         res.status(200).json({
             movies,
             pagination: {
-                current: page
+                current: page,
+                total: totalPages,
+                totalItems: totalMovies
             }
         });
     } catch (err) {

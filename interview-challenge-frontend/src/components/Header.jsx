@@ -39,7 +39,7 @@ function Header() {
                     Watched
                 </span>
             </button>
-            <select className="bg-white rounded-md text-sm py-2 px-5 w-32">
+            <select className="bg-white rounded-md text-sm py-2 px-5 w-32 cursor-pointer">
                 {genres.map((genre) => (
                 <option key={genre} value={genre}>
                     {genre}
