@@ -26,7 +26,6 @@ function MovieForm({ isFormOpen, setIsFormOpen }) {
 
         const genreData = await genreResponse.json();
         setGenres(genreData);
-        console.log('Genres:', genreData);
       } catch (e) {
         console.error(e.message);
       }

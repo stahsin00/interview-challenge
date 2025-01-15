@@ -34,7 +34,12 @@ function MovieCard({ movie, setSelectedMovie }) {
         throw new Error('Failed to update rating');
       }
 
-      setWatched(!watched);
+      const updatedMovie = await response.json();
+
+      setWatched(updatedMovie.watched);
+      setRating(updatedMovie.rating);
+
+      setSelectedMovie(updatedMovie);
     } catch (err) {
       console.error('Error updating rating:', err);
     }
@@ -62,7 +67,12 @@ function MovieCard({ movie, setSelectedMovie }) {
         throw new Error('Failed to update rating');
       }
 
-      setRating(i);
+      const updatedMovie = await response.json();
+
+      setWatched(updatedMovie.watched);
+      setRating(updatedMovie.rating);
+
+      setSelectedMovie(updatedMovie);
     } catch (err) {
       console.error('Error updating rating:', err);
     }

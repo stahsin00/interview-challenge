@@ -157,9 +157,9 @@ function MovieModal({ selectedMovie, setSelectedMovie }) {
             </button>
           </div>
           <div className="w-full flex justify-center md:justify-end items-center gap-2 mt-2 md:absolute md:bottom-5 md:right-5">
-            <button className="border border-[#f8ad2d] text-[#f8ad2d] rounded-md text-sm p-2 w-10 h-10 flex justify-center items-center">
+            {/* <button className="border border-[#f8ad2d] text-[#f8ad2d] rounded-md text-sm p-2 w-10 h-10 flex justify-center items-center">
               <MdOutlineEdit />
-            </button>
+            </button> */}
             <button
               className="border border-[#f8ad2d] text-[#f8ad2d] rounded-md text-sm p-2 w-10 h-10 flex justify-center items-center"
               onClick={(e) => {

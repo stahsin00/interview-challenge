@@ -6,6 +6,7 @@ import { FaStar } from 'react-icons/fa';
 import { IoMdArrowDropdown } from 'react-icons/io';
 
 function Header({ setIsFormOpen }) {
+  const [movies, setMovies] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const genres = [
     'Action',
@@ -23,6 +24,11 @@ function Header({ setIsFormOpen }) {
     'Thriller',
   ];
 
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    
+  };
+
   return (
     <>
       <div className="bg-black border-gray-500 border-b w-full h-16 fixed top-0 flex items-center shadow-md z-40">
@@ -33,8 +39,9 @@ function Header({ setIsFormOpen }) {
         <div className="w-full h-full flex items-center justify-center gap-7">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search...(Not Implemented T-T)"
             className="bg-white rounded-full text-sm py-2 px-5 w-2/5 hidden md:block"
+            onChange={handleSearchChange}
           />
           <div className="h-full relative flex w-full md:w-auto">
             <button
@@ -93,8 +100,9 @@ function Header({ setIsFormOpen }) {
           </select>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search...(Not Implemented T-T)"
             className="bg-white rounded-full text-sm py-2 px-5 w-4/5 md:hidden"
+            onChange={handleSearchChange}
           />
         </div>
       </div>
