@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaRegStar } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
 
@@ -6,6 +6,11 @@ function MovieCard({ movie, setSelectedMovie }) {
     const { title, releaseYear, genres } = movie;
     const [rating, setRating] = useState(movie.rating);
     const [watched, setWatched] = useState(movie.watched);
+
+    useEffect(() => {
+        setRating(movie.rating);
+        setWatched(movie.watched);
+    }, [movie]);
 
     const handleWatched = async (e) => {
         e.stopPropagation();
